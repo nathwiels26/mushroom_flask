@@ -1,0 +1,1020 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mushroom Safety Predictor - Prediksi Keamanan Jamur</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f8fffe 0%, #f0f9f4 50%, #ecfdf5 100%);
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+
+        .hero {
+            background: linear-gradient(135deg, #fb923c 0%, #f59e0b 50%, #22c55e 100%);
+            color: white;
+            text-align: center;
+            padding: 4rem 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .hero h1 {
+            font-size: 3rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        .progress-container {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .progress-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background-color: #e5e7eb;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #fb923c, #22c55e);
+            transition: width 0.3s ease;
+            width: 0%;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .form-section {
+            space-y: 2rem;
+        }
+
+        .field-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .field-card.completed {
+            border-color: #22c55e;
+            background: rgba(34, 197, 94, 0.05);
+        }
+
+        .field-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: #1f2937;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .checkmark {
+            color: #22c55e;
+            font-weight: bold;
+        }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+        }
+
+        .option-card {
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 1rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-align: center;
+            background: white;
+        }
+
+        .option-card:hover {
+            border-color: #fb923c;
+            shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .option-card.selected {
+            border-color: #fb923c;
+            background: rgba(251, 146, 60, 0.05);
+            transform: scale(1.02);
+        }
+
+        .option-image {
+            width: 100%;
+            height: 80px;
+            background: linear-gradient(45deg, #f3f4f6, #e5e7eb);
+            border-radius: 6px;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            color: #6b7280;
+        }
+
+        .option-label {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: #1f2937;
+        }
+
+        .option-description {
+            font-size: 0.85rem;
+            color: #6b7280;
+            line-height: 1.4;
+        }
+
+        .submit-button {
+            background: linear-gradient(135deg, #fb923c, #f59e0b);
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            font-size: 1.1rem;
+            font-weight: 600;
+            border-radius: 8px;
+            cursor: pointer;
+            width: 100%;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 8px rgba(251, 146, 60, 0.3);
+        }
+
+        .submit-button:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(251, 146, 60, 0.4);
+        }
+
+        .submit-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .result-panel {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 2rem;
+            height: fit-content;
+        }
+
+        .result-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: #1f2937;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .result-empty {
+            text-align: center;
+            padding: 2rem;
+            color: #6b7280;
+        }
+
+        .result-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+        }
+
+        .result-content {
+            text-align: center;
+        }
+
+        .result-badge {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 1.1rem;
+            margin: 1rem 0;
+        }
+
+        .result-safe {
+            background: #22c55e;
+            color: white;
+        }
+
+        .result-danger {
+            background: #ef4444;
+            color: white;
+        }
+
+        .result-probability {
+            margin: 1rem 0;
+        }
+
+        .probability-bar {
+            width: 100%;
+            height: 12px;
+            background: #e5e7eb;
+            border-radius: 6px;
+            overflow: hidden;
+            margin-top: 0.5rem;
+        }
+
+        .probability-fill {
+            height: 100%;
+            transition: width 0.5s ease;
+        }
+
+        .probability-safe {
+            background: #22c55e;
+        }
+
+        .probability-danger {
+            background: #ef4444;
+        }
+
+        .disclaimer {
+            background: #f3f4f6;
+            padding: 1rem;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            color: #4b5563;
+            margin-top: 1rem;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .spinner {
+            border: 3px solid #e5e7eb;
+            border-top: 3px solid #fb923c;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .error {
+            color: #ef4444;
+            text-align: center;
+            padding: 2rem;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+            
+            .hero h1 {
+                font-size: 2rem;
+            }
+            
+            .options-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Hero Section -->
+    <div class="hero">
+        <h1>🍄 Mushroom Safety Predictor</h1>
+        <p>Prediksi keamanan jamur menggunakan AI berdasarkan karakteristik fisik</p>
+    </div>
+
+    <div class="container">
+        <!-- Progress Bar -->
+        <div class="progress-container">
+            <div class="progress-header">
+                <span>Progress Pengisian</span>
+                <span id="progress-text">0/12 karakteristik</span>
+            </div>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progress-fill"></div>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <!-- Form Section -->
+            <div class="form-section">
+                <form id="predictForm">
+                    <!-- Cap Shape -->
+                    <div class="field-card" data-field="cap-shape">
+                        <div class="field-title">
+                            <span class="checkmark" style="display: none;">✓</span>
+                            Bentuk Tudung Jamur
+                        </div>
+                        <div class="options-grid">
+                            <div class="option-card" data-value="0">
+                                <div class="option-image">🔔</div>
+                                <div class="option-label">Bell (Lonceng)</div>
+                                <div class="option-description">Berbentuk seperti lonceng, melengkung ke bawah dari tengah</div>
+                            </div>
+                            <div class="option-card" data-value="1">
+                                <div class="option-image">🔺</div>
+                                <div class="option-label">Conical (Kerucut)</div>
+                                <div class="option-description">Berbentuk kerucut dengan puncak yang runcing</div>
+                            </div>
+                            <div class="option-card" data-value="2">
+                                <div class="option-image">🥯</div>
+                                <div class="option-label">Convex (Cembung)</div>
+                                <div class="option-description">Melengkung ke atas seperti kubah</div>
+                            </div>
+                            <div class="option-card" data-value="3">
+                                <div class="option-image">⚪</div>
+                                <div class="option-label">Flat (Datar)</div>
+                                <div class="option-description">Permukaan tudung rata atau hampir rata</div>
+                            </div>
+                            <div class="option-card" data-value="4">
+                                <div class="option-image">🎯</div>
+                                <div class="option-label">Knobbed (Bertonjolan)</div>
+                                <div class="option-description">Memiliki tonjolan kecil di tengah tudung</div>
+                            </div>
+                            <div class="option-card" data-value="5">
+                                <div class="option-image">🥣</div>
+                                <div class="option-label">Sunken (Cekung)</div>
+                                <div class="option-description">Tengah tudung melekuk ke dalam seperti mangkuk</div>
+                            </div>
+                        </div>
+                        <input type="hidden" name="cap-shape" value="">
+                    </div>
+
+                    <!-- Cap Surface -->
+                    <div class="field-card" data-field="cap-surface">
+                        <div class="field-title">
+                            <span class="checkmark" style="display: none;">✓</span>
+                            Permukaan Tudung
+                        </div>
+                        <div class="options-grid">
+                            <div class="option-card" data-value="0">
+                                <div class="option-image">🧵</div>
+                                <div class="option-label">Fibrous (Berserat)</div>
+                                <div class="option-description">Permukaan memiliki serat-serat halus yang terlihat</div>
+                            </div>
+                            <div class="option-card" data-value="1">
+                                <div class="option-image">〰️</div>
+                                <div class="option-label">Grooves (Beralur)</div>
+                                <div class="option-description">Terdapat alur-alur atau garis pada permukaan</div>
+                            </div>
+                            <div class="option-card" data-value="2">
+                                <div class="option-image">🐟</div>
+                                <div class="option-label">Scaly (Bersisik)</div>
+                                <div class="option-description">Permukaan kasar seperti sisik ikan</div>
+                            </div>
+                            <div class="option-card" data-value="3">
+                                <div class="option-image">✨</div>
+                                <div class="option-label">Smooth (Halus)</div>
+                                <div class="option-description">Permukaan licin dan halus tanpa tekstur khusus</div>
+                            </div>
+                        </div>
+                        <input type="hidden" name="cap-surface" value="">
+                    </div>
+
+                    <!-- Cap Color -->
+                    <div class="field-card" data-field="cap-color">
+                        <div class="field-title">
+                            <span class="checkmark" style="display: none;">✓</span>
+                            Warna Tudung
+                        </div>
+                        <div class="options-grid">
+                            <div class="option-card" data-value="0">
+                                <div class="option-image">🤎</div>
+                                <div class="option-label">Brown (Coklat)</div>
+                                <div class="option-description">Warna coklat dalam berbagai nuansa</div>
+                            </div>
+                            <div class="option-card" data-value="1">
+                                <div class="option-image">🧈</div>
+                                <div class="option-label">Buff (Krem)</div>
+                                <div class="option-description">Warna krem atau kuning pucat</div>
+                            </div>
+                            <div class="option-card" data-value="2">
+                                <div class="option-image">🍂</div>
+                                <div class="option-label">Cinnamon (Kayu Manis)</div>
+                                <div class="option-description">Warna coklat kemerahan seperti kayu manis</div>
+                            </div>
+                            <div class="option-card" data-value="3">
+                                <div class="option-image">⚫</div>
+                                <div class="option-label">Gray (Abu-abu)</div>
+                                <div class="option-description">Warna abu-abu dalam berbagai intensitas</div>
+                            </div>
+                            <div class="option-card" data-value="4">
+                                <div class="option-image">🟢</div>
+                                <div class="option-label">Green (Hijau)</div>
+                                <div class="option-description">Warna hijau, bisa tanda jamur tua atau rusak</div>
+                            </div>
+                            <div class="option-card" data-value="5">
+                                <div class="option-image">🩷</div>
+                                <div class="option-label">Pink (Merah Muda)</div>
+                                <div class="option-description">Warna merah muda atau salmon</div>
+                            </div>
+                            <div class="option-card" data-value="6">
+                                <div class="option-image">🟣</div>
+                                <div class="option-label">Purple (Ungu)</div>
+                                <div class="option-description">Warna ungu dalam berbagai nuansa</div>
+                            </div>
+                            <div class="option-card" data-value="7">
+                                <div class="option-image">🔴</div>
+                                <div class="option-label">Red (Merah)</div>
+                                <div class="option-description">Warna merah cerah atau gelap</div>
+                            </div>
+                            <div class="option-card" data-value="8">
+                                <div class="option-image">⚪</div>
+                                <div class="option-label">White (Putih)</div>
+                                <div class="option-description">Warna putih bersih atau krem sangat pucat</div>
+                            </div>
+                            <div class="option-card" data-value="9">
+                                <div class="option-image">🟡</div>
+                                <div class="option-label">Yellow (Kuning)</div>
+                                <div class="option-description">Warna kuning cerah atau emas</div>
+                            </div>
+                        </div>
+                        <input type="hidden" name="cap-color" value="">
+                    </div>
+
+                    <!-- Bruises -->
+                    <div class="field-card" data-field="bruises">
+                        <div class="field-title">
+                            <span class="checkmark" style="display: none;">✓</span>
+                            Memar saat Ditekan
+                        </div>
+                        <div class="options-grid">
+                            <div class="option-card" data-value="0">
+                                <div class="option-image">❌</div>
+                                <div class="option-label">No (Tidak)</div>
+                                <div class="option-description">Jamur tidak berubah warna saat ditekan atau dilukai</div>
+                            </div>
+                            <div class="option-card" data-value="1">
+                                <div class="option-image">✅</div>
+                                <div class="option-label">Yes (Ya)</div>
+                                <div class="option-description">Jamur berubah warna (biasanya gelap) saat ditekan</div>
+                            </div>
+                        </div>
+                        <input type="hidden" name="bruises" value="">
+                    </div>
+
+                    <!-- Odor -->
+                    <div class="field-card" data-field="odor">
+                        <div class="field-title">
+                            <span class="checkmark" style="display: none;">✓</span>
+                            Aroma Jamur
+                        </div>
+                        <div class="options-grid">
+                            <div class="option-card" data-value="0">
+                                <div class="option-image">🌰</div>
+                                <div class="option-label">Almond</div>
+                                <div class="option-description">Aroma manis seperti kacang almond</div>
+                            </div>
+                            <div class="option-card" data-value="1">
+                                <div class="option-image">🌿</div>
+                                <div class="option-label">Anise</div>
+                                <div class="option-description">Aroma seperti adas manis, agak pedas</div>
+                            </div>
+                            <div class="option-card" data-value="2">
+                                <div class="option-image">🏭</div>
+                                <div class="option-label">Creosote</div>
+                                <div class="option-description">Aroma kimia atau tar, sangat kuat</div>
+                            </div>
+                            <div class="option-card" data-value="3">
+                                <div class="option-image">🐟</div>
+                                <div class="option-label">Fishy</div>
+                                <div class="option-description">Aroma amis seperti ikan busuk</div>
+                            </div>
+                            <div class="option-card" data-value="4">
+                                <div class="option-image">🤢</div>
+                                <div class="option-label">Foul</div>
+                                <div class="option-description">Aroma busuk dan menyengat</div>
+                            </div>
+                            <div class="option-card" data-value="5">
+                                <div class="option-image">🏚️</div>
+                                <div class="option-label">Musty</div>
+                                <div class="option-description">Aroma lembab seperti ruang basement</div>
+                            </div>
+                            <div class="option-card" data-value="6">
+                                <div class="option-image">🚫</div>
+                                <div class="option-label">None</div>
+                                <div class="option-description">Tidak ada aroma khusus</div>
+                            </div>
+                            <div class="option-card" data-value="7">
+                                <div class="option-image">💨</div>
+                                <div class="option-label">Pungent</div>
+                                <div class="option-description">Aroma tajam dan menyengat</div>
+                            </div>
+                            <div class="option-card" data-value="8">
+                                <div class="option-image">🌶️</div>
+                                <div class="option-label">Spicy</div>
+                                <div class="option-description">Aroma pedas seperti rempah</div>
+                            </div>
+                        </div>
+                        <input type="hidden" name="odor" value="">
+                    </div>
+
+                    <!-- Gill Attachment -->
+                    <div class="field-card" data-field="gill-attachment">
+                        <div class="field-title">
+                            <span class="checkmark" style="display: none;">✓</span>
+                            Perlekatan Insang
+                        </div>
+                        <div class="options-grid">
+                            <div class="option-card" data-value="0">
+                                <div class="option-image">📎</div>
+                                <div class="option-label">Attached (Melekat)</div>
+                                <div class="option-description">Insang melekat langsung pada batang</div>
+                            </div>
+                            <div class="option-card" data-value="1">
+                                <div class="option-image">📉</div>
+                                <div class="option-label">Descending (Menurun)</div>
+                                <div class="option-description">Insang turun mengikuti batang</div>
+                            </div>
+                            <div class="option-card" data-value="2">
+                                <div class="option-image">🆓</div>
+                                <div class="option-label">Free (Bebas)</div>
+                                <div class="option-description">Insang tidak menyentuh batang sama sekali</div>
+                            </div>
+                            <div class="option-card" data-value="3">
+                                <div class="option-image">🔗</div>
+                                <div class="option-label">Notched (Berlekuk)</div>
+                                <div class="option-description">Insang melekat dengan lekukan kecil</div>
+                            </div>
+                        </div>
+                        <input type="hidden" name="gill-attachment" value="">
+                    </div>
+
+                    <!-- Gill Spacing -->
+                    <div class="field-card" data-field="gill-spacing">
+                        <div class="field-title">
+                            <span class="checkmark" style="display: none;">✓</span>
+                            Jarak Antar Insang
+                        </div>
+                        <div class="options-grid">
+                            <div class="option-card" data-value="0">
+                                <div class="option-image">🤏</div>
+                                <div class="option-label">Close (Rapat)</div>
+                                <div class="option-description">Insang-insang saling berdekatan</div>
+                            </div>
+                            <div class="option-card" data-value="1">
+                                <div class="option-image">📊</div>
+                                <div class="option-label">Crowded (Sangat Rapat)</div>
+                                <div class="option-description">Insang sangat rapat dan padat</div>
+                            </div>
+                            <div class="option-card" data-value="2">
+                                <div class="option-image">↔️</div>
+                                <div class="option-label">Distant (Jarang)</div>
+                                <div class="option-description">Jarak antar insang cukup jauh</div>
+                            </div>
+                        </div>
+                        <input type="hidden" name="gill-spacing" value="">
+                    </div>
+
+                    <!-- Gill Size -->
+                    <div class="field-card" data-field="gill-size">
+                        <div class="field-title">
+                            <span class="checkmark" style="display: none;">✓</span>
+                            Ukuran Insang
+                        </div>
+                        <div class="options-grid">
+                            <div class="option-card" data-value="0">
+                                <div class="option-image">📏</div>
+                                <div class="option-label">Broad (Lebar)</div>
+                                <div class="option-description">Insang lebar dan besar</div>
+                            </div>
+                            <div class="option-card" data-value="1">
+                                <div class="option-image">📐</div>
+                                <div class="option-label">Narrow (Sempit)</div>
+                                <div class="option-description">Insang tipis dan sempit</div>
+                            </div>
+                        </div>
+                        <input type="hidden" name="gill-size" value="">
+                    </div>
+
+                    <!-- Gill Color -->
+                    <div class="field-card" data-field="gill-color">
+                        <div class="field-title">
+                            <span class="checkmark" style="display: none;">✓</span>
+                            Warna Insang
+                        </div>
+                        <div class="options-grid">
+                            <div class="option-card" data-value="0">
+                                <div class="option-image">⚫</div>
+                                <div class="option-label">Black (Hitam)</div>
+                                <div class="option-description">Warna hitam pekat</div>
+                            </div>
+                            <div class="option-card" data-value="1">
+                                <div class="option-image">🤎</div>
+                                <div class="option-label">Brown (Coklat)</div>
+                                <div class="option-description">Warna coklat dalam berbagai nuansa</div>
+                            </div>
+                            <div class="option-card" data-value="2">
+                                <div class="option-image">🧈</div>
+                                <div class="option-label">Buff (Krem)</div>
+                                <div class="option-description">Warna krem atau kuning pucat</div>
+                            </div>
+                            <div class="option-card" data-value="3">
+                                <div class="option-image">🍫</div>
+                                <div class="option-label">Chocolate (Coklat Tua)</div>
+                                <div class="option-description">Warna coklat gelap seperti coklat</div>
+                            </div>
+                            <div class="option-card" data-value="4">
+                                <div class="option-image">🔘</div>
+                                <div class="option-label">Gray (Abu-abu)</div>
+                                <div class="option-description">Warna abu-abu</div>
+                            </div>
+                            <div class="option-card" data-value="5">
+                                <div class="option-image">🟢</div>
+                                <div class="option-label">Green (Hijau)</div>
+                                <div class="option-description">Warna hijau, sering tanda pembusukan</div>
+                            </div>
+                            <div class="option-card" data-value="6">
+                                <div class="option-image">🟠</div>
+                                <div class="option-label">Orange (Oranye)</div>
+                                <div class="option-description">Warna oranye cerah</div>
+                            </div>
+                            <div class="option-card" data-value="7">
+                                <div class="option-image">🩷</div>
+                                <div class="option-label">Pink (Merah Muda)</div>
+                                <div class="option-description">Warna merah muda atau salmon</div>
+                            </div>
+                            <div class="option-card" data-value="8">
+                                <div class="option-image">🟣</div>
+                                <div class="option-label">Purple (Ungu)</div>
+                                <div class="option-description">Warna ungu</div>
+                            </div>
+                            <div class="option-card" data-value="9">
+                                <div class="option-image">🔴</div>
+                                <div class="option-label">Red (Merah)</div>
+                                <div class="option-description">Warna merah</div>
+                            </div>
+                            <div class="option-card" data-value="10">
+                                <div class="option-image">⚪</div>
+                                <div class="option-label">White (Putih)</div>
+                                <div class="option-description">Warna putih bersih</div>
+                            </div>
+                            <div class="option-card" data-value="11">
+                                <div class="option-image">🟡</div>
+                                <div class="option-label">Yellow (Kuning)</div>
+                                <div class="option-description">Warna kuning</div>
+                            </div>
+                        </div>
+                        <input type="hidden" name="gill-color" value="">
+                    </div>
+
+                    <!-- Stalk Shape -->
+                    <div class="field-card" data-field="stalk-shape">
+                        <div class="field-title">
+                            <span class="checkmark" style="display: none;">✓</span>
+                            Bentuk Batang
+                        </div>
+                        <div class="options-grid">
+                            <div class="option-card" data-value="0">
+                                <div class="option-image">📈</div>
+                                <div class="option-label">Enlarging (Membesar)</div>
+                                <div class="option-description">Batang mengecil ke atas atau membesar ke bawah</div>
+                            </div>
+                            <div class="option-card" data-value="1">
+                                <div class="option-image">📉</div>
+                                <div class="option-label">Tapering (Meruncing)</div>
+                                <div class="option-description">Batang mengecil secara bertahap ke atas</div>
+                            </div>
+                        </div>
+                        <input type="hidden" name="stalk-shape" value="">
+                    </div>
+
+                    <!-- Stalk Root -->
+                    <div class="field-card" data-field="stalk-root">
+                        <div class="field-title">
+                            <span class="checkmark" style="display: none;">✓</span>
+                            Akar Batang
+                        </div>
+                        <div class="options-grid">
+                            <div class="option-card" data-value="0">
+                                <div class="option-image">🧅</div>
+                                <div class="option-label">Bulbous (Berumbi)</div>
+                                <div class="option-description">Pangkal batang membesar seperti umbi</div>
+                            </div>
+                            <div class="option-card" data-value="1">
+                                <div class="option-image">🏏</div>
+                                <div class="option-label">Club (Seperti Gada)</div>
+                                <div class="option-description">Pangkal membesar seperti kepala gada</div>
+                            </div>
+                            <div class="option-card" data-value="2">
+                                <div class="option-image">🥤</div>
+                                <div class="option-label">Cup (Seperti Cangkir)</div>
+                                <div class="option-description">Pangkal melebar seperti cangkir</div>
+                            </div>
+                            <div class="option-card" data-value="3">
+                                <div class="option-image">📏</div>
+                                <div class="option-label">Equal (Sama)</div>
+                                <div class="option-description">Diameter batang sama dari atas ke bawah</div>
+                            </div>
+                            <div class="option-card" data-value="4">
+                                <div class="option-image">🌱</div>
+                                <div class="option-label">Rhizomorphs (Berserabut)</div>
+                                <div class="option-description">Terdapat serabut-serabut seperti akar</div>
+                            </div>
+                            <div class="option-card" data-value="5">
+                                <div class="option-image">🌿</div>
+                                <div class="option-label">Rooted (Berakar)</div>
+                                <div class="option-description">Memiliki akar yang jelas terlihat</div>
+                            </div>
+                            <div class="option-card" data-value="6">
+                                <div class="option-image">❓</div>
+                                <div class="option-label">Missing (Tidak Ada)</div>
+                                <div class="option-description">Tidak ada struktur akar khusus</div>
+                            </div>
+                        </div>
+                        <input type="hidden" name="stalk-root" value="">
+                    </div>
+
+                    <!-- Ring Type -->
+                    <div class="field-card" data-field="ring-type">
+                        <div class="field-title">
+                            <span class="checkmark" style="display: none;">✓</span>
+                            Jenis Cincin
+                        </div>
+                        <div class="options-grid">
+                            <div class="option-card" data-value="0">
+                                <div class="option-image">🕸️</div>
+                                <div class="option-label">Cobwebby (Seperti Sarang Laba-laba)</div>
+                                <div class="option-description">Cincin tipis seperti jaring laba-laba</div>
+                            </div>
+                            <div class="option-card" data-value="1">
+                                <div class="option-image">💨</div>
+                                <div class="option-label">Evanescent (Mudah Hilang)</div>
+                                <div class="option-description">Cincin ada tapi mudah hilang</div>
+                            </div>
+                            <div class="option-card" data-value="2">
+                                <div class="option-image">📢</div>
+                                <div class="option-label">Flaring (Melebar)</div>
+                                <div class="option-description">Cincin melebar ke luar</div>
+                            </div>
+                            <div class="option-card" data-value="3">
+                                <div class="option-image">💍</div>
+                                <div class="option-label">Large (Besar)</div>
+                                <div class="option-description">Cincin berukuran besar dan jelas</div>
+                            </div>
+                            <div class="option-card" data-value="4">
+                                <div class="option-image">🚫</div>
+                                <div class="option-label">None (Tidak Ada)</div>
+                                <div class="option-description">Tidak memiliki cincin</div>
+                            </div>
+                            <div class="option-card" data-value="5">
+                                <div class="option-image">🔽</div>
+                                <div class="option-label">Pendant (Menggantung)</div>
+                                <div class="option-description">Cincin menggantung dari batang</div>
+                            </div>
+                            <div class="option-card" data-value="6">
+                                <div class="option-image">🛡️</div>
+                                <div class="option-label">Sheathing (Membungkus)</div>
+                                <div class="option-description">Cincin membungkus batang</div>
+                            </div>
+                            <div class="option-card" data-value="7">
+                                <div class="option-image">🟫</div>
+                                <div class="option-label">Zone (Zona)</div>
+                                <div class="option-description">Cincin membentuk zona atau pita</div>
+                            </div>
+                        </div>
+                        <input type="hidden" name="ring-type" value="">
+                    </div>
+
+                    <div class="field-card">
+                        <button type="submit" class="submit-button" id="submit-btn" disabled>
+                            🍄 Prediksi Keamanan Jamur
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Result Panel -->
+            <div class="result-panel">
+                <div class="result-title">
+                    ⚠️ Hasil Prediksi
+                </div>
+                
+                <div id="result-empty" class="result-empty">
+                    <div class="result-icon">🍄</div>
+                    <p>Lengkapi semua karakteristik untuk mendapatkan prediksi</p>
+                </div>
+
+                <div id="result-loading" class="loading">
+                    <div class="spinner"></div>
+                    <p>Memproses prediksi...</p>
+                </div>
+
+                <div id="result-error" class="error" style="display: none;">
+                    <div class="result-icon">❌</div>
+                    <p><strong>Error</strong></p>
+                    <p id="error-message"></p>
+                </div>
+
+                <div id="result-content" style="display: none;">
+                    <div class="result-content">
+                        <div id="result-icon-circle" class="result-icon"></div>
+                        <div id="result-badge" class="result-badge"></div>
+                        
+                        <div class="result-probability">
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem; font-size: 0.9rem;">
+                                <span>Probabilitas Bahaya</span>
+                                <span id="probability-text" style="font-weight: 600;"></span>
+                            </div>
+                            <div class="probability-bar">
+                                <div id="probability-fill" class="probability-fill"></div>
+                            </div>
+                        </div>
+
+                        <div class="disclaimer">
+                            <strong>Catatan:</strong> Prediksi ini berdasarkan AI dan tidak 100% akurat. 
+                            Selalu konsultasi dengan ahli mikologi untuk identifikasi jamur yang aman dikonsumsi.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let formData = {};
+        let completedFields = 0;
+        const totalFields = 12;
+
+        // Initialize event listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeOptionCards();
+            initializeForm();
+            updateProgress();
+        });
+
+        function initializeOptionCards() {
+            const optionCards = document.querySelectorAll('.option-card');
+            
+            optionCards.forEach(card => {
+                card.addEventListener('click', function() {
+                    const fieldCard = this.closest('.field-card');
+                    const fieldName = fieldCard.getAttribute('data-field');
+                    const value = this.getAttribute('data-value');
+                    
+                    // Remove selected class from all cards in this field
+                    fieldCard.querySelectorAll('.option-card').forEach(c => c.classList.remove('selected'));
+                    
+                    // Add selected class to clicked card
+                    this.classList.add('selected');
+                    
+                    // Update hidden input
+                    const hiddenInput = fieldCard.querySelector('input[type="hidden"]');
+                    if (hiddenInput) {
+                        hiddenInput.value = value;
+                    }
+                    
+                    // Update form data
+                    const wasEmpty = !formData[fieldName];
+                    formData[fieldName] = parseInt(value);
+                    
+                    // Update field card appearance
+                    fieldCard.classList.add('completed');
+                    const checkmark = fieldCard.querySelector('.checkmark');
+                    if (checkmark) {
+                        checkmark.style.display = 'inline';
+                    }
+                    
+                    // Update progress if this was a new selection
+                    if (wasEmpty) {
+                        completedFields++;
+                        updateProgress();
+                    }
+                });
+            });
+        }
+
+        function initializeForm() {
+            document.getElementById('predictForm').addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                if (completedFields < totalFields) {
+                    alert(`Mohon lengkapi semua karakteristik. Masih ada ${totalFields - completedFields} yang belum dipilih.`);
+                    return;
+                }
+
+                await submitPrediction();
+            });
+        }
+
+        function updateProgress() {
+            const progressPercentage = (completedFields / totalFields) * 100;
+            
+            document.getElementById('progress-fill').style.width = progressPercentage + '%';
+            document.getElementById('progress-text').textContent = `${completedFields}/${totalFields} karakteristik`;
+            
+            const submitBtn = document.getElementById('submit-btn');
+            if (completedFields === totalFields) {
+                submitBtn.disabled = false;
+                submitBtn.style.opacity = '1';
+            } else {
+                submitBtn.disabled = true;
+                submitBtn.style.opacity = '0.5';
+            }
+        }
+
+        async function submitPrediction() {
+            // Show loading
+            showLoading();
+            
+            try {
+                const response = await fetch('/predict', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(formData)
+                });
+                
+                const result = await response.json();
+                showResult(result);
+                
+            } catch (error) {
+                showError('Gagal terhubung ke server Flask! Pastikan server berjalan di port 5000.');
+            }
+        }
+
+        function showLoading() {
+            document.getElementById('result-empty').style.display = 'none';
+            document.getElementById('result-error').style.display = 'none';
+            document.getElementById('result-content').style.display = 'none';
+            document.getElementById('result-loading').style.display = 'block';
+        }
+
+        function showError(message) {
+            document.getElementById('result-loading').style.display = 'none';
+            document.getElementById('result-error').style.display = 'block';
+            document.getElementById('error-message').textContent = message;
+        }
+
+        function showResult(result) {
+            document.getElementById('result-loading').style.display = 'none';
+            document.getElementById('result-content').style.display = 'block';
+            
+            const isDangerous = result.prediction === 1;
+            const probability = result.probability * 100;
+            
+            // Update icon
+            const iconCircle = document.getElementById('result-icon-circle');
+            iconCircle.textContent = isDangerous ? '⚠️' : '✅';
+            
+            // Update badge
+            const badge = document.getElementById('result-badge');
+            badge.textContent = isDangerous ? 'BERACUN!' : 'AMAN!';
+            badge.className = `result-badge ${isDangerous ? 'result-danger' : 'result-safe'}`;
+            
+            // Update probability
+            document.getElementById('probability-text').textContent = probability.toFixed(1) + '%';
+            const probabilityFill = document.getElementById('probability-fill');
+            probabilityFill.style.width = probability + '%';
+            probabilityFill.className = `probability-fill ${isDangerous ? 'probability-danger' : 'probability-safe'}`;
+        }
+    </script>
+</body>
+</html>
